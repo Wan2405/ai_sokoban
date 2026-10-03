@@ -117,6 +117,36 @@ COMPETITION_LEVEL = Level("Kho đôi", (
     "%%%%%%%%%%%",
 ))
 
+COMPETITION_LEVELS = (
+    (COMPETITION_LEVEL, (8, 5)),
+    (Level("Mê cung chữ U", (
+        "%%%%%%%%%%%%%",
+        "%A    %    D%",
+        "% B   % B   %",
+        "%    %%     %",
+        "%% %  %  %  %",
+        "%D   %%  B  %",
+        "%  %      % %",
+        "% B    % D  %",
+        "%    %  D   %",
+        "%%%%%%%%%%%%%",
+    ), "Bản khó · nhiều ngõ cụt và hành lang hẹp."), (10, 8)),
+    (Level("Khoá chéo", (
+        "%%%%%%%%%%%%%%%",
+        "%A      %    D%",
+        "% B  %  % B   %",
+        "%    %  %     %",
+        "% %% %  %  %%%%",
+        "% D  %  %  B  %",
+        "%    %     %  %",
+        "% B     %  D %",
+        "%   %   %     %",
+        "% D % B     D %",
+        "%       %    %",
+        "%%%%%%%%%%%%%%%",
+    ), "Bản rất khó · năm thùng và các khu vực bị chia cắt."), (12, 10)),
+)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Thử luật mục 6 bằng hai hành động đồng thời.")

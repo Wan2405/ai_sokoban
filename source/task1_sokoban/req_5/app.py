@@ -16,7 +16,7 @@ from source.task1_sokoban.req_5.gui_model import Board, Level, load_default_leve
 from source.task1_sokoban.req_5.solver_bridge import solve_board
 from .renderer import BoardRenderer
 from .replay import Replay
-from source.task1_sokoban.req_6.competition import CompetitiveBoard, COMPETITION_LEVEL
+from source.task1_sokoban.req_6.competition import CompetitiveBoard, COMPETITION_LEVELS
 from source.task1_sokoban.req_7.agent_api import AgentRunner, agent_name, load_agent
 
 WIDTH, HEIGHT = 1280, 860
@@ -74,6 +74,7 @@ class SokobanApp:
         self.think = [None, None]
         self.agent_names = {}
         self.round_input = "20"
+        self.competition_level_index = 0
         self.setup_error = ""
         self.buttons: dict[str, tuple[pg.Rect, bool]] = {}
         self.mouse = (-1, -1)
@@ -306,7 +307,8 @@ class SokobanApp:
         self._cancel_solver()
         try:
             n = int(self.round_input)
-            game = CompetitiveBoard(COMPETITION_LEVEL, (8, 5), n)
+            level, second_player = COMPETITION_LEVELS[self.competition_level_index]
+            game = CompetitiveBoard(level, second_player, n)
         except ValueError:
             self.setup_error = "Nhập số lượt n là số nguyên dương."
             return
@@ -449,6 +451,11 @@ class SokobanApp:
         if self.page == "setup":
             if action == "start":
                 self._start_competition()
+            elif action == "competition_map":
+                self.competition_level_index = (
+                    self.competition_level_index + 1
+                ) % len(COMPETITION_LEVELS)
+                self.setup_error = ""
             elif action in ("ctrl_1", "ctrl_2"):
                 index = int(action[-1])-1
                 if self.controllers[index] == "human":
@@ -828,7 +835,8 @@ class SokobanApp:
 
     def _menu_view(self):
         w, h = self.canvas.get_size()
-        rect = pg.Rect(0, 0, min(520, w-48), 360)
+        menu_height = 408 if self.page == "setup" else 360
+        rect = pg.Rect(0, 0, min(520, w-48), menu_height)
         rect.center = (w//2, h//2)
         self.card(rect)
         x, y = rect.x+32, rect.y+24
@@ -848,12 +856,15 @@ class SokobanApp:
             self.text(self.setup_error or "Chọn agent cho từng tác nhân rồi nhập n > 0.", x, y+158, 14,
                       "#a4402c" if self.setup_error else MUTED)
             half = (width-12)//2
+            level = COMPETITION_LEVELS[self.competition_level_index][0]
+            self.button("competition_map", (x, y+190, width, 36),
+                        f"Map: {level.name} · bấm để đổi", small=True)
             for i in (0, 1):
                 self.button(
-                    f"ctrl_{i+1}", (x+i*(half+12), y+190, half, 40),
+                    f"ctrl_{i+1}", (x+i*(half+12), y+238, half, 40),
                     f"{i+1}: {self._controller_label(i)}", small=True)
-            self.button("start", (x, y+242, width, 44), "Bắt đầu", primary=True)
-            self.button("menu", (x, y+294, width, 36), "Quay lại")
+            self.button("start", (x, y+290, width, 44), "Bắt đầu", primary=True)
+            self.button("menu", (x, y+342, width, 36), "Quay lại")
 
     def present(self):
         self.screen.blit(self.draw(), (0, 0))
