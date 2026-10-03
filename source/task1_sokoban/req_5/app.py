@@ -451,9 +451,17 @@ class SokobanApp:
                 self._start_competition()
             elif action in ("ctrl_1", "ctrl_2"):
                 index = int(action[-1])-1
-                choices = self.agent_choices[index]
-                position = choices.index(self.agent_specs[index])
-                self.agent_specs[index] = choices[(position + 1) % len(choices)]
+                if self.controllers[index] == "human":
+                    self.controllers[index] = "ai"
+                else:
+                    choices = self.agent_choices[index]
+                    current = self.agent_specs[index]
+                    position = choices.index(current)
+                    if position + 1 < len(choices):
+                        self.agent_specs[index] = choices[position + 1]
+                    else:
+                        self.controllers[index] = "human"
+                        self.agent_specs[index] = choices[0]
                 self.setup_error = ""
             return
         if self.competition:
