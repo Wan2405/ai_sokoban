@@ -48,7 +48,7 @@ Thư mục: `source/task1_sokoban/req_5/`.
 | `renderer.py` | Vẽ tường, sàn, đích, thùng, người chơi và hiệu ứng chuyển bước |
 | `replay.py` | Kiểm tra toàn bộ lời giải và tổng chi phí trước khi nạp vào lịch sử phát lại |
 | `assets/` | Các ảnh PNG của GUI gốc, giữ nguyên dữ liệu |
-| `__main__.py` | Cho phép chạy gói bằng `python -m source.task1_sokoban.req_5` |
+| `__main__.py` | Entry point của gói Req 5 |
 
 Req 1–2 là phần core của bạn. Hai file phục vụ GUI nêu trên được đặt trong Req 5
 để thể hiện rõ phân công. Việc chuyển vị trí file không thay đổi thuật toán tìm kiếm.
@@ -71,12 +71,12 @@ Thư mục: `source/task1_sokoban/req_7/`.
 `agent_api.py` định nghĩa `AgentView`, nạp agent từ module hoặc file `.py`, và
 `AgentRunner` chạy quyết định trên thread riêng với giới hạn 1000 ms. Agent lỗi,
 quá giờ hoặc trả hướng không hợp lệ không làm dừng trận; runner dùng lại hướng
-trước đó. `arena.py` chạy hai agent không cần GUI và báo điểm, thời gian, timeout
+trước đó. `arena.py` chứa luồng đấu agent và báo điểm, thời gian, timeout
 và lỗi.
 
 `agent_bfs_greedy.py` là agent BFS tham lam, `agent_ids_dls.py` là agent
 DLS/IDS; `agent_tools.py` cung cấp BFS khoảng cách đi bộ và reverse BFS số
-lần đẩy. `arena.py` chạy hai agent không cần GUI và báo điểm, thời gian,
+lần đẩy. GUI chạy hai agent và báo điểm, thời gian,
 timeout và lỗi. GUI Req 5 cho phép chọn agent cho từng tác nhân để chạy thử
 hai agent đấu với nhau.
 
@@ -86,9 +86,9 @@ Thư mục: `source/task1_sokoban/req_8/`.
 
 `agent_external_test.py` là fixture agent ngoài tối giản, có `NAME` và
 `choose_action(view, time_limit)` đúng giao ước Req 7. Fixture này dùng để
-kiểm tra đường đi đầy đủ từ import module, chạy arena đến chọn và hiển thị
+kiểm tra đường đi đầy đủ từ import module đến chọn và hiển thị
 agent trong GUI. Agent thật của nhóm khác cũng được nạp qua đường dẫn file
-`.py` hoặc tên module bằng các tùy chọn `--agent1` và `--agent2`.
+`.py` hoặc tên module trong danh sách agent được đăng ký của GUI.
 
 ## Luồng khi bấm UCS hoặc A*
 

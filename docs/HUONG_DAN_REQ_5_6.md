@@ -36,15 +36,9 @@ Người 1 dùng W/A/S/D, người 2 dùng mũi tên. Bàn chơi chờ đủ hai
   bằng nhau là hòa. Luật này khác chi phí mỗi hành động hợp lệ trong tìm kiếm một tác nhân.
 - Undo/redo và đặt lại giữ nguyên hành vi của GUI gốc.
 
-Có thể chạy mô hình hai tác nhân riêng trong Terminal:
-
-```powershell
-python -m source.task1_sokoban.req_6.competition --steps 20
-```
-
-Req 6 trong bản này cung cấp luật và giao diện thao tác tay. Thuật toán điều khiển hai
-tác nhân tự động chưa được cài. Các kiểm thử của GUI kiểm tra va chạm, hai lần đẩy độc lập,
-giành lại điểm, giới hạn lượt và đối xứng khi đổi tên tác nhân.
+Req 6 trong bản này cung cấp luật và giao diện thao tác hai tác nhân. Chọn chế độ
+**2 tác nhân** từ menu để kiểm tra va chạm, hai lần đẩy độc lập, giành lại điểm,
+giới hạn lượt và đối xứng khi đổi tên tác nhân.
 
 ## Kiểm tra trên giao diện
 

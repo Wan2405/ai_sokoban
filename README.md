@@ -8,7 +8,7 @@ Mỗi hành động hợp lệ có chi phí **1**. Bốn file map gốc của co
 ## 1. Chạy trên VS Code / Windows
 
 1. Giải nén ZIP. Mở thư mục **AI_midterm** bằng **File → Open Folder**.
-   Thư mục đang mở phải chứa `main.py`, `requirements.txt`, `source` và `tests`.
+   Thư mục đang mở phải chứa `main.py`, `requirements.txt` và `source`.
 2. Dùng Python **3.10 trở lên**; có thể dùng Python 3.12.
 3. Mở **Terminal → New Terminal** và chạy lần lượt:
 
@@ -70,7 +70,7 @@ của bạn làm GUI; `solver_bridge.py` là file thêm khi ghép. Cả hai nằ
 .\.venv\Scripts\python.exe main.py --screenshot output/preview.png
 ```
 
-Đường dẫn map do bạn truyền được tính từ thư mục Terminal hiện tại.
+Đường dẫn map do bạn truyền được tính từ thư mục hiện tại.
 Bộ map mặc định và đường dẫn hình ảnh được tính theo vị trí mã nguồn.
 File map dùng `%` (tường), `A` (người chơi), `B` (thùng), `C` (thùng trên đích),
 `D` (đích), dấu cách (sàn). Không xóa dấu cách khi sửa map.
@@ -82,15 +82,15 @@ ZIP không chứa lịch sử Git hoặc môi trường ảo. Nếu dùng repo �
 1. Sao lưu thư mục repo trước khi thay cấu trúc.
 2. Chép **nội dung bên trong thư mục AI_midterm của ZIP** vào thư mục repo;
    giữ thư mục `.git` của repo. Không lồng thêm một thư mục `AI_midterm` nữa.
-3. Chạy lại kiểm thử từ cấu trúc mới. Các file GUI cũ ở ngoài cùng đã có vị trí mới trong
-   `req_5`, `req_6`; chỉ giữ một bộ nguồn đang dùng để tránh nhầm bản.
+3. Chạy lại ứng dụng từ cấu trúc mới. Các file GUI cũ ở ngoài cùng đã có vị trí mới
+   trong `req_5`, `req_6`; chỉ giữ một bộ nguồn đang dùng để tránh nhầm bản.
 4. Xem `git status`, `git diff`, rồi commit trên nhánh của bạn.
 
 File `.gitignore` bỏ qua `.venv`, bộ nhớ đệm Python và ảnh kiểm thử sinh ra.
 Req 3 và Req 4 chưa nằm trong phạm vi bản ghép này; Req 7 và Req 8 đã có trong
 `source/task1_sokoban/req_7/` và `source/task1_sokoban/req_8/`.
 
-## 5. Req 7 — Giao ước agent và chạy arena
+## 5. Req 7 — Giao ước agent và đấu trong GUI
 
 Req 7 nằm trong `source/task1_sokoban/req_7/` và dùng trực tiếp luật cạnh tranh
 đồng thời của Req 6. Agent chỉ cần cung cấp:
@@ -107,30 +107,23 @@ thái hiện tại. `AgentRunner` gọi agent trên thread riêng, giới hạn 
 1000 ms; agent bị timeout, lỗi hoặc trả action sai sẽ lặp action trước để trận
 tiếp tục an toàn.
 
-Chạy hai agent từ terminal:
-
-```powershell
-.\.venv\Scripts\python.exe -m source.task1_sokoban.req_7.arena `
-  --agent1 path\to\agent1.py --agent2 path\to\agent2.py --steps 40
-```
-
-Hai agent của nhóm đã được tích hợp trong Req 7: `agent_greedy` dùng BFS để
-tìm đường tới vị trí đẩy tốt, còn `agent_lookahead` dùng DLS/IDS. Ở màn hình
+Hai agent của nhóm đã được tích hợp trong Req 7: `agent_bfs_greedy` dùng BFS để
+tìm đường tới vị trí đẩy tốt, còn `agent_ids_dls` dùng DLS/IDS. Ở màn hình
 **2 tác nhân**, bấm nút `1: Người` hoặc `2: Người` để đổi từng bên thành AI,
 sau đó bấm tiếp để luân phiên qua các agent đã đăng ký, trong đó có
 `req_8.agent_external_test` đại diện cho agent nhóm khác. Bấm **Bắt đầu** để
 cho hai agent tự đấu. Có thể truyền agent thật khác bằng `--agent1` và
-`--agent2`; GUI sẽ hiện `NAME` của agent đó trong nút chọn và thanh trạng thái
-trận.
+`--agent2` khi tích hợp vào mã nguồn; trong GUI, tên `NAME` của agent được hiện
+trên nút chọn và thanh trạng thái trận.
 
 ### Chiến thuật của hai agent
 
 - Khoảng cách đi bộ được tính bằng BFS trên các ô có thể đi qua.
 - Khoảng cách đẩy được tính bằng reverse BFS từ các đích; ô không có khoảng
   cách được xem là ô chết và không được chọn làm vị trí đẩy.
-- `agent_greedy` chọn vị trí đứng đẩy có điểm đánh giá thấp nhất dựa trên
+- `agent_bfs_greedy` chọn vị trí đứng đẩy có điểm đánh giá thấp nhất dựa trên
   khoảng cách đi bộ và số lần đẩy còn lại.
-- `agent_lookahead` dùng DLS/IDS để tìm đường trong giới hạn độ sâu.
+- `agent_ids_dls` dùng DLS/IDS để tìm đường trong giới hạn độ sâu.
 - Cả hai agent có thể chọn thùng chưa thuộc mình, nên hỗ trợ chiến thuật
   **cướp thùng của đối thủ**.
 - Khi ô đứng đẩy bị đối thủ chiếm, `approach_spot()` tìm waypoint lân cận
@@ -146,22 +139,12 @@ Req 7 là đánh giá chiến thuật cục bộ, có xét vị trí người ch
 
 Thư mục `source/task1_sokoban/req_8/` chứa fixture
 `agent_external_test.py`, mô phỏng agent của nhóm khác nhưng vẫn tuân thủ giao
-ước của Req 7. Fixture này chỉ dùng để kiểm tra việc import, chạy arena và
-hiển thị tên agent trong GUI; nó không đại diện cho thuật toán thi đấu chính.
-Agent thật của nhóm khác có thể là module hoặc file `.py`, được nạp bằng
-`--agent1` và `--agent2` như hướng dẫn ở trên.
+ước của Req 7. Fixture này dùng để kiểm tra việc import và hiển thị tên agent
+trong GUI; nó không đại diện cho thuật toán thi đấu chính.
 
 Trong GUI, nút chọn từng tác nhân luân phiên qua Người, BFS, IDS/DLS và
 `TeamOther-Test`. Chọn AI cho cả hai bên rồi bấm **Bắt đầu** để chạy chế độ
 AI-vs-AI. Tên agent và thời gian phản hồi gần nhất được hiển thị trên giao diện.
-
-Ví dụ chạy fixture agent ngoài đấu với BFS:
-
-```powershell
-.\.venv\Scripts\python.exe -m source.task1_sokoban.req_7.arena `
-  --agent1 source.task1_sokoban.req_8.agent_external_test `
-  --agent2 source.task1_sokoban.req_7.agent_greedy --steps 40
-```
 
 Agent ngoài phải có dạng:
 
@@ -181,9 +164,8 @@ def choose_action(view, time_limit):
   cửa sổ; timeout, lỗi hoặc hành động sai sẽ lặp lại hành động trước.
 - Luật Req 6 xử lý lượt đi đồng thời, va chạm, đẩy thùng, giành/cướp thùng,
   ghi nhận chủ sở hữu thùng trên đích và giới hạn số lượt `n`.
-- Req 7 đã được kiểm tra bằng trận BFS-vs-IDS/DLS 40 lượt và luồng AI-vs-AI
-  trong GUI. Req 8 đã được kiểm tra bằng fixture agent ngoài trong arena và
-  bằng việc chọn/hiển thị agent đó trong GUI.
+- Req 7 được sử dụng qua luồng AI-vs-AI trong GUI. Req 8 được tích hợp bằng
+  fixture agent ngoài và kiểm tra qua việc chọn/hiển thị agent đó trong GUI.
 - Hai map nháp gốc vẫn được giữ trong `LEVELS` để chạy kiểm tra GUI. Map “Kho gạch nhỏ”
   có một thùng bị kẹt nên không có lời giải; nó không nằm trong bộ map mặc định của ứng dụng.
 - Việc tìm kiếm chạy cùng luồng với GUI. Với map lớn, cửa sổ có thể tạm chờ trong lúc tìm.
