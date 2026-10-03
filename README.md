@@ -1,4 +1,5 @@
 # AI Midterm — Sokoban, chia theo từng Req
+![Uploading image.png…]()
 
 Bản này ghép core UCS/A* với giao diện Pygame và giữ luật hai tác nhân của GUI.
 Mỗi hành động hợp lệ có chi phí **1**. Bốn file map gốc của core được giữ nguyên nội dung.
