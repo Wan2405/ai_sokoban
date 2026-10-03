@@ -49,6 +49,8 @@ Các đường dẫn trong bảng là đường dẫn tính từ thư mục `AI_
 | `source/task1_sokoban/req_2/` | Core của bạn: UCS, A*, heuristic, nút tìm kiếm và kết quả |
 | `source/task1_sokoban/req_5/` | Phần GUI: mô hình bàn chơi, cầu nối tới core, giao diện, vẽ hình và phát lại; `assets/` nằm trong thư mục này |
 | `source/task1_sokoban/req_6/` | Trạng thái và luật cạnh tranh của hai tác nhân |
+| `source/task1_sokoban/req_7/` | Giao ước agent, AgentRunner, arena, agent BFS và agent IDS/DLS |
+| `source/task1_sokoban/req_8/` | Fixture agent ngoài và luồng import agent của nhóm khác |
 | `source/task1_sokoban/maps/` | Bốn map gốc của core; map mẫu của GUI nằm riêng trong `gui_drafts/` |
 | `tests/` | Kiểm thử core, GUI và việc kết nối |
 | `docs/` | Phân chia Req, giải thích core và hướng dẫn GUI / hai tác nhân |
@@ -159,6 +161,25 @@ cho hai agent tự đấu. Có thể truyền agent thật khác bằng `--agent
 `--agent2`; GUI sẽ hiện `NAME` của agent đó trong nút chọn và thanh trạng thái
 trận.
 
+### Chiến thuật của hai agent
+
+- Khoảng cách đi bộ được tính bằng BFS trên các ô có thể đi qua.
+- Khoảng cách đẩy được tính bằng reverse BFS từ các đích; ô không có khoảng
+  cách được xem là ô chết và không được chọn làm vị trí đẩy.
+- `agent_greedy` chọn vị trí đứng đẩy có điểm đánh giá thấp nhất dựa trên
+  khoảng cách đi bộ và số lần đẩy còn lại.
+- `agent_lookahead` dùng DLS/IDS để tìm đường trong giới hạn độ sâu.
+- Cả hai agent có thể chọn thùng chưa thuộc mình, nên hỗ trợ chiến thuật
+  **cướp thùng của đối thủ**.
+- Khi ô đứng đẩy bị đối thủ chiếm, `approach_spot()` tìm waypoint lân cận
+  để agent thoát thế kẹt và tiếp cận lại mục tiêu. Cách này xử lý trường hợp
+  hai agent bị đứng sau khi đẩy thùng trong trận `n=40`.
+
+Heuristic của Req 2 và chiến thuật Req 7 không dùng chung nguyên xi:
+heuristic Req 2 là cận dưới toàn cục cho A* và ghép thùng với các đích;
+Req 7 là đánh giá chiến thuật cục bộ, có xét vị trí người chơi, vị trí đứng
+đẩy, quyền sở hữu và khả năng cướp thùng.
+
 ## 8. Req 8 — Tích hợp agent nhóm khác
 
 Thư mục `source/task1_sokoban/req_8/` chứa fixture
@@ -168,6 +189,27 @@ hiển thị tên agent trong GUI; nó không đại diện cho thuật toán th
 Agent thật của nhóm khác có thể là module hoặc file `.py`, được nạp bằng
 `--agent1` và `--agent2` như hướng dẫn ở trên.
 
+Trong GUI, nút chọn từng tác nhân luân phiên qua Người, BFS, IDS/DLS và
+`TeamOther-Test`. Chọn AI cho cả hai bên rồi bấm **Bắt đầu** để chạy chế độ
+AI-vs-AI. Tên agent và thời gian phản hồi gần nhất được hiển thị trên giao diện.
+
+Ví dụ chạy fixture agent ngoài đấu với BFS:
+
+```powershell
+.\.venv\Scripts\python.exe -m source.task1_sokoban.req_7.arena `
+  --agent1 source.task1_sokoban.req_8.agent_external_test `
+  --agent2 source.task1_sokoban.req_7.agent_greedy --steps 40
+```
+
+Agent ngoài phải có dạng:
+
+```python
+NAME = "Ten agent"
+
+def choose_action(view, time_limit):
+    return "East"  # North, East, South hoặc West
+```
+
 ## 9. Phạm vi và giới hạn
 
 - Req 1–2 là tìm kiếm cho **một tác nhân**. Req 6 giữ luật hai tác nhân; các
@@ -175,6 +217,11 @@ Agent thật của nhóm khác có thể là module hoặc file `.py`, được 
   nhân thành thuật toán thi đấu.
 - Hai agent cạnh tranh được chạy nền trong GUI, nên agent chậm không làm treo
   cửa sổ; timeout, lỗi hoặc hành động sai sẽ lặp lại hành động trước.
+- Luật Req 6 xử lý lượt đi đồng thời, va chạm, đẩy thùng, giành/cướp thùng,
+  ghi nhận chủ sở hữu thùng trên đích và giới hạn số lượt `n`.
+- Req 7 đã được kiểm tra bằng trận BFS-vs-IDS/DLS 40 lượt và luồng AI-vs-AI
+  trong GUI. Req 8 đã được kiểm tra bằng fixture agent ngoài trong arena và
+  bằng việc chọn/hiển thị agent đó trong GUI.
 - Hai map nháp gốc vẫn được giữ trong `LEVELS` để chạy kiểm tra GUI. Map “Kho gạch nhỏ”
   có một thùng bị kẹt nên không có lời giải; nó không nằm trong bộ map mặc định của ứng dụng.
 - Việc tìm kiếm chạy cùng luồng với GUI. Với map lớn, cửa sổ có thể tạm chờ trong lúc tìm.
