@@ -90,13 +90,14 @@ kiểm tra đường đi đầy đủ từ import module, chạy arena đến ch
 agent trong GUI. Agent thật của nhóm khác cũng được nạp qua đường dẫn file
 `.py` hoặc tên module bằng các tùy chọn `--agent1` và `--agent2`.
 
-## Luồng khi bấm Tìm lời giải
+## Luồng khi bấm UCS hoặc A*
 
 1. `main.py` gọi `main()` trong `req_5/app.py`.
 2. `main()` đọc bốn map bằng `req_5/gui_model.py → load_default_levels()`.
 3. `SokobanApp` tạo `Board`, `BoardRenderer`, nối `self.solver = solve_board`.
-4. Người dùng chọn UCS hoặc A*, bấm kính lúp. `SokobanApp.act("solve")` tạo bản sao bàn
-   chơi hiện tại, gọi `req_5/solver_bridge.py → solve_board(candidate, self.algorithm)`.
+4. Người dùng bấm UCS hoặc A*. `SokobanApp.act()` tạo bản sao bàn chơi hiện tại,
+   chạy `req_5/solver_bridge.py → solve_board(candidate, self.algorithm)` ở luồng nền
+   và hiển thị loading; môi trường không có cửa sổ dùng luồng chính để kiểm thử.
 5. `create_map_from_board()` đổi tọa độ, lấy tường/đích/sàn và vị trí hiện tại, tạo `SokobanMap`.
 6. `solve_board()` tạo `SokobanProblem`, rồi gọi `UniformCostSearch.search()` hoặc
    `AStarSearch.search()` cùng heuristic.

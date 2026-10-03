@@ -22,7 +22,8 @@ Trong VS Code, chọn **Ctrl+Shift+P → Python: Select Interpreter → .venv**.
 Nếu máy chỉ nhận lệnh `py`, dùng `py -3 -m venv .venv` cho lệnh đầu tiên.
 
 Chương trình mở menu **1 tác nhân / 2 tác nhân**. Chọn **1 tác nhân** để dùng core của bạn.
-Chọn **UCS** hoặc **A*** rồi bấm nút kính lúp **Tìm lời giải**.
+Trong chế độ **1 tác nhân**, bấm trực tiếp **UCS** hoặc **A*** để tìm lời giải;
+giao diện sẽ hiện loading trong lúc tính toán.
 
 | Thao tác | Phím hoặc nút |
 | --- | --- |
