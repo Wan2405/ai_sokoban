@@ -1,11 +1,3 @@
-"""Mock DFS agent for Req 8: emulates a different team agent.
-
-This is intentionally lightweight and deterministic: it explores a small
-breadth/depth of possible moves, evaluates each branch with a simple heuristic,
-and picks the best action from the current state. The goal is to satisfy the
-external-agent integration contract without depending on the real source code of
-another team.
-"""
 
 from __future__ import annotations
 
