@@ -123,3 +123,7 @@ def choose_action(view, time_limit=1.0):
     if len(path) < 2:
         return stay(view)
     return to_action(view, path)
+
+
+
+

@@ -46,13 +46,9 @@ Req 6 trong bản này cung cấp luật và giao diện thao tác tay. Thuật 
 tác nhân tự động chưa được cài. Các kiểm thử của GUI kiểm tra va chạm, hai lần đẩy độc lập,
 giành lại điểm, giới hạn lượt và đối xứng khi đổi tên tác nhân.
 
-## Kiểm tra và hình ảnh
+## Kiểm tra trên giao diện
 
-```powershell
-python -m tests.check_requirements
-python -m tests.check_presentation
-```
-
-Hai lệnh chạy bằng chế độ Pygame không mở cửa sổ, xuất ảnh vào `output/gui_checks/`.
-Chúng kiểm tra các nút, menu, phát lại, cửa sổ ở nhiều kích thước, hiệu ứng và luật hai tác nhân.
-Chúng không thay thế việc thử phím, chuột, font tiếng Việt trên máy thật của nhóm.
+Chạy `main.py`, chọn lần lượt chế độ một tác nhân và hai tác nhân, sau đó kiểm tra
+các nút, menu, phát lại, cửa sổ ở nhiều kích thước, hiệu ứng và luật hai tác nhân.
+Việc kiểm tra trên giao diện không thay thế thử phím, chuột và font tiếng Việt trên
+máy thật của nhóm.

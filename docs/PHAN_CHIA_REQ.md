@@ -114,19 +114,12 @@ Thuật toán tìm kiếm xét nhiều trạng thái trong bộ nhớ trước k
 trên màn hình không tự đi theo từng trạng thái mà thuật toán đang xét; nó thực hiện
 danh sách hành động cuối cùng khi người dùng bấm phát hoặc tiến bước.
 
-## Luồng khi chạy Terminal
-
-`main_cli.py` đọc map bằng `MapLoader.load()`, tạo `SokobanProblem`, gọi thuật toán và
-in `SearchResult`. Luồng này không nhập Pygame, không cần mở cửa sổ.
-
 ## Những thay đổi khi ghép
 
 - Chuyển các file vào thư mục Req và đổi đường dẫn `import`.
-- Thêm `solver_bridge.py`, `main.py`, kiểm thử kết nối và hướng dẫn theo cấu trúc mới.
-- Đổi `main.py` core cũ thành `main_cli.py`, chỉnh đường dẫn map mặc định.
+- Thêm `solver_bridge.py`, `main.py` và hướng dẫn theo cấu trúc mới.
 - GUI mặc định nạp bốn map core, bỏ qua dòng rỗng cuối file khi đọc.
 - Giữ nguyên logic UCS, A*, heuristic, luật đi/đẩy, luật hai tác nhân và hình ảnh gốc.
-- Các kiểm tra GUI ghi ảnh vào `output/gui_checks/` để không làm bẩn thư mục mã.
 - `gui_model.py` và `solver_bridge.py` nằm trong Req 5; Req 1–2 chỉ giữ phần core gốc.
 
 Không có Req 3, 4, 7 giả lập trong ZIP; nhóm bổ sung các phần đó khi có nguồn thật.

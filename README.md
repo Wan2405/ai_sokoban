@@ -47,7 +47,6 @@ Các đường dẫn trong bảng là đường dẫn tính từ thư mục `AI_
 | Thư mục / file | Trách nhiệm |
 | --- | --- |
 | `main.py` | Mở GUI đã nối với core |
-| `main_cli.py` | Chạy core trong Terminal, không cần Pygame |
 | `source/task1_sokoban/req_1/` | Core của bạn: bản đồ, trạng thái, hành động, chuyển trạng thái, đích và chi phí |
 | `source/task1_sokoban/req_2/` | Core của bạn: UCS, A*, heuristic, nút tìm kiếm và kết quả |
 | `source/task1_sokoban/req_5/` | Phần GUI: mô hình bàn chơi, cầu nối tới core, giao diện, vẽ hình và phát lại; `assets/` nằm trong thư mục này |
@@ -55,9 +54,7 @@ Các đường dẫn trong bảng là đường dẫn tính từ thư mục `AI_
 | `source/task1_sokoban/req_7/` | Giao ước agent, AgentRunner, arena, agent BFS và agent IDS/DLS |
 | `source/task1_sokoban/req_8/` | Fixture agent ngoài và luồng import agent của nhóm khác |
 | `source/task1_sokoban/maps/` | Bốn map gốc của core; map mẫu của GUI nằm riêng trong `gui_drafts/` |
-| `tests/` | Kiểm thử core, GUI và việc kết nối |
 | `docs/` | Phân chia Req, giải thích core và hướng dẫn GUI / hai tác nhân |
-| `output/` | Ảnh do các lệnh kiểm tra sinh ra; không đưa vào Git |
 
 Xem nội dung từng file và luồng gọi hàm trong [docs/PHAN_CHIA_REQ.md](docs/PHAN_CHIA_REQ.md).
 Các file `__init__.py` giúp Python nhận biết các thư mục mã là gói (package); hãy giữ chúng.
@@ -65,45 +62,7 @@ Các file `__init__.py` giúp Python nhận biết các thư mục mã là gói 
 Req 1–2 chỉ chứa các file core gốc của bạn. `gui_model.py` được chuyển từ `model.py`
 của bạn làm GUI; `solver_bridge.py` là file thêm khi ghép. Cả hai nằm trong Req 5.
 
-## 3. Chạy core riêng trong Terminal
-
-Không cần cài Pygame để chạy các lệnh này:
-
-```powershell
-.\.venv\Scripts\python.exe main_cli.py source/task1_sokoban/maps/map_test.txt ucs
-.\.venv\Scripts\python.exe main_cli.py source/task1_sokoban/maps/map_test.txt astar
-```
-
-Nếu không truyền tham số, `main_cli.py` dùng `map_test.txt` và A*.
-Kết quả gồm danh sách `North/East/West/South`, tổng chi phí và các số liệu tìm kiếm.
-Heuristic dùng BFS ngược từ đích và ghép thùng với các đích khác nhau;
-**không dùng khoảng cách Euclid hoặc Manhattan**.
-
-## 4. Chạy kiểm thử
-
-Chạy tại thư mục ngoài cùng có `main.py`:
-
-```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
-.\.venv\Scripts\python.exe -m tests.check_requirements
-.\.venv\Scripts\python.exe -m tests.check_presentation
-```
-
-Lệnh đầu chạy toàn bộ kiểm thử core, tích hợp GUI và agent (hiện có 15 kiểm thử).
-Hai lệnh sau kiểm tra thêm các nút, phát lại, kích thước cửa sổ, menu và luật hai tác nhân.
-Ảnh kiểm chứng được ghi vào `output/gui_checks/`.
-
-| Map | Tổng chi phí UCS | Tổng chi phí A* |
-| --- | ---: | ---: |
-| `map_test.txt` | 3 | 3 |
-| `map_two_boxes.txt` | 8 | 8 |
-| `example_map.txt` | 34 | 34 |
-| `map_already_solved.txt` | 0 | 0 |
-
-Có thể chỉ chạy core: `python -m unittest tests.test_core_search -v`.
-Xem phạm vi kiểm tra của bản ZIP trong [docs/KET_QUA_KIEM_THU.md](docs/KET_QUA_KIEM_THU.md).
-
-## 5. Đọc một map riêng hoặc kiểm tra khởi động
+## 3. Chạy GUI với map riêng hoặc kiểm tra khởi động
 
 ```powershell
 .\.venv\Scripts\python.exe main.py --map source/task1_sokoban/maps/example_map.txt
@@ -116,7 +75,7 @@ Bộ map mặc định và đường dẫn hình ảnh được tính theo vị 
 File map dùng `%` (tường), `A` (người chơi), `B` (thùng), `C` (thùng trên đích),
 `D` (đích), dấu cách (sàn). Không xóa dấu cách khi sửa map.
 
-## 6. Ghép vào repo đã clone
+## 4. Ghép vào repo đã clone
 
 ZIP không chứa lịch sử Git hoặc môi trường ảo. Nếu dùng repo đã clone:
 
@@ -131,7 +90,7 @@ File `.gitignore` bỏ qua `.venv`, bộ nhớ đệm Python và ảnh kiểm th
 Req 3 và Req 4 chưa nằm trong phạm vi bản ghép này; Req 7 và Req 8 đã có trong
 `source/task1_sokoban/req_7/` và `source/task1_sokoban/req_8/`.
 
-## 7. Req 7 — Giao ước agent và chạy arena
+## 5. Req 7 — Giao ước agent và chạy arena
 
 Req 7 nằm trong `source/task1_sokoban/req_7/` và dùng trực tiếp luật cạnh tranh
 đồng thời của Req 6. Agent chỉ cần cung cấp:
@@ -183,7 +142,7 @@ heuristic Req 2 là cận dưới toàn cục cho A* và ghép thùng với các
 Req 7 là đánh giá chiến thuật cục bộ, có xét vị trí người chơi, vị trí đứng
 đẩy, quyền sở hữu và khả năng cướp thùng.
 
-## 8. Req 8 — Tích hợp agent nhóm khác
+## 6. Req 8 — Tích hợp agent nhóm khác
 
 Thư mục `source/task1_sokoban/req_8/` chứa fixture
 `agent_external_test.py`, mô phỏng agent của nhóm khác nhưng vẫn tuân thủ giao
@@ -213,7 +172,7 @@ def choose_action(view, time_limit):
     return "East"  # North, East, South hoặc West
 ```
 
-## 9. Phạm vi và giới hạn
+## 7. Phạm vi và giới hạn
 
 - Req 1–2 là tìm kiếm cho **một tác nhân**. Req 6 giữ luật hai tác nhân; các
   agent cạnh tranh của Req 7 dùng giao ước riêng, không chuyển UCS/A* một tác
