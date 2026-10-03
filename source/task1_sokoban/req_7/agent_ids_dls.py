@@ -1,4 +1,4 @@
-"""Agent DLS: chon cho day bang h, di toi do bang DLS lap tang LIM (IDS) nhu BTVN."""
+"""Agent IDS/DLS: chọn chỗ đẩy bằng h và tìm đường theo DLS lặp tầng."""
 import heapq
 
 from .agent_tools import (
@@ -7,7 +7,7 @@ from .agent_tools import (
 from ..req_5.gui_model import DIRECTIONS
 
 cache = {}
-NAME = "DLS"
+NAME = "IDS/DLS"
 MAX_WALK = 10
 
 

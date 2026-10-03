@@ -154,8 +154,6 @@ class IntegrationTests(unittest.TestCase):
         app.act("dual")
         app.act("ctrl_1")
         app.act("ctrl_1")
-        app.act("ctrl_1")
-        self.assertEqual(app.controllers[0], "ai")
         self.assertEqual(app.agent_specs[0],
                          "source.task1_sokoban.req_8.agent_external_test")
         app.round_input = "2"

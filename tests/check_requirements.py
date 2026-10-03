@@ -62,15 +62,17 @@ def check_menu(app):
         save(f"preview_setup{suffix}.png")
         click("start")
         assert app.page == "game" and app.competition.step_limit == 2
+        assert all(app.runners)
+        app._stop_agents()
+        app.competition_paused = True
         initial = app.competition.state
         with patch("pygame.time.get_ticks", return_value=1000):
-            app.handle_event(pg.event.Event(pg.KEYDOWN, key=pg.K_d))
-            assert app.competition.state == initial and app.pending == ["East", None]
-            app.handle_event(pg.event.Event(pg.KEYDOWN, key=pg.K_LEFT))
+            app.competition_paused = False
+            app.pending = ["East", "West"]
+            app._advance_competition()
             assert app.competition.state.steps == 1
             first = app.competition.state
-            app.act("p1_South")
-            app.act("p2_North")
+            app.competition_paused = True
         with patch("pygame.time.get_ticks", return_value=1124):
             app.draw()
             assert app.competition.state == first
@@ -84,6 +86,7 @@ def check_menu(app):
             app.draw()
             assert app.competition.state == first and app.competition_paused
             save(f"preview_competition{suffix}.png")
+            app.pending = ["West", "East"]
             click("play")
             app.draw()
             assert app.competition.finished and app.competition.state.steps == 2

@@ -74,11 +74,11 @@ quá giờ hoặc trả hướng không hợp lệ không làm dừng trận; ru
 trước đó. `arena.py` chạy hai agent không cần GUI và báo điểm, thời gian, timeout
 và lỗi.
 
-`agent_greedy.py` là agent BFS tham lam, `agent_lookahead.py` là agent
+`agent_bfs_greedy.py` là agent BFS tham lam, `agent_ids_dls.py` là agent
 DLS/IDS; `agent_tools.py` cung cấp BFS khoảng cách đi bộ và reverse BFS số
 lần đẩy. `arena.py` chạy hai agent không cần GUI và báo điểm, thời gian,
-timeout và lỗi. GUI Req 5 cho phép chuyển từng tác nhân giữa Người và AI để
-chạy thử hai agent đấu với nhau.
+timeout và lỗi. GUI Req 5 cho phép chọn agent cho từng tác nhân để chạy thử
+hai agent đấu với nhau.
 
 ## Req 8 — Tích hợp agent nhóm khác
 

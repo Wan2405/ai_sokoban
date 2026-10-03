@@ -32,8 +32,8 @@ BUTTON_HINTS = {
 
 class SokobanApp:
     def __init__(self, levels=None, size=(WIDTH, HEIGHT),
-                 agents=("source.task1_sokoban.req_7.agent_greedy",
-                         "source.task1_sokoban.req_7.agent_lookahead")):
+                 agents=("source.task1_sokoban.req_7.agent_bfs_greedy",
+                         "source.task1_sokoban.req_7.agent_ids_dls")):
         if levels is None:
             levels = load_default_levels()
         pg.display.init()
@@ -54,18 +54,20 @@ class SokobanApp:
         self.competition = None
         self.agent_specs = list(agents)
         self.agent_choices = [
-            list(dict.fromkeys((
-                self.agent_specs[0],
-                "source.task1_sokoban.req_7.agent_lookahead",
+            [
+                "source.task1_sokoban.req_7.agent_bfs_greedy",
+                "source.task1_sokoban.req_7.agent_ids_dls",
                 "source.task1_sokoban.req_8.agent_external_test",
-            ))),
-            list(dict.fromkeys((
-                self.agent_specs[1],
-                "source.task1_sokoban.req_7.agent_greedy",
+                "source.task1_sokoban.req_8.agent_dfs",
+            ],
+            [
+                "source.task1_sokoban.req_7.agent_bfs_greedy",
+                "source.task1_sokoban.req_7.agent_ids_dls",
                 "source.task1_sokoban.req_8.agent_external_test",
-            ))),
+                "source.task1_sokoban.req_8.agent_dfs",
+            ],
         ]
-        self.controllers = ["human", "human"]
+        self.controllers = ["ai", "ai"]
         self.runners = [None, None]
         self.think = [None, None]
         self.agent_names = {}
@@ -213,8 +215,6 @@ class SokobanApp:
                 runner.cancel()
 
     def _controller_label(self, index):
-        if self.controllers[index] == "human":
-            return "Người"
         spec = self.agent_specs[index]
         if spec not in self.agent_names:
             try:
@@ -372,16 +372,9 @@ class SokobanApp:
                 self._start_competition()
             elif action in ("ctrl_1", "ctrl_2"):
                 index = int(action[-1])-1
-                if self.controllers[index] == "human":
-                    self.controllers[index] = "ai"
-                else:
-                    choices = self.agent_choices[index]
-                    current = self.agent_specs[index]
-                    position = choices.index(current)
-                    if position + 1 < len(choices):
-                        self.agent_specs[index] = choices[position + 1]
-                    else:
-                        self.controllers[index] = "human"
+                choices = self.agent_choices[index]
+                position = choices.index(self.agent_specs[index])
+                self.agent_specs[index] = choices[(position + 1) % len(choices)]
                 self.setup_error = ""
             return
         if self.competition:
@@ -756,7 +749,7 @@ class SokobanApp:
             pg.draw.rect(self.canvas, "#f7ead0", field)
             pg.draw.rect(self.canvas, "#846345", field, 2)
             self.text(self.round_input+"|", field.x+16, field.y+10, 22, bold=True)
-            self.text(self.setup_error or "Chọn người/AI rồi nhập n > 0.", x, y+158, 14,
+            self.text(self.setup_error or "Chọn agent cho từng tác nhân rồi nhập n > 0.", x, y+158, 14,
                       "#a4402c" if self.setup_error else MUTED)
             half = (width-12)//2
             for i in (0, 1):
@@ -788,9 +781,9 @@ def main():
     parser.add_argument("--map", type=Path, help="Đọc bản đồ %% A B D C từ file UTF-8.")
     parser.add_argument("--screenshot", type=Path, help="Xuất ảnh giao diện rồi thoát, không mở cửa sổ.")
     parser.add_argument("--frames", type=int, help="Thoát sau N khung hình, dùng kiểm tra khởi động.")
-    parser.add_argument("--agent1", default="source.task1_sokoban.req_7.agent_greedy",
+    parser.add_argument("--agent1", default="source.task1_sokoban.req_7.agent_bfs_greedy",
                         help="Agent cho tác nhân 1: tên module hoặc file .py.")
-    parser.add_argument("--agent2", default="source.task1_sokoban.req_7.agent_lookahead",
+    parser.add_argument("--agent2", default="source.task1_sokoban.req_7.agent_ids_dls",
                         help="Agent cho tác nhân 2: tên module hoặc file .py.")
     args = parser.parse_args()
     if args.screenshot:

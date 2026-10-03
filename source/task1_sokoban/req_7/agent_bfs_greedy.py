@@ -1,4 +1,4 @@
-"""Agent BFS: chon cho day bang h, di toi do bang BFS."""
+"""Agent BFS-greedy: chọn chỗ đẩy bằng h, đi tới đó bằng BFS."""
 from collections import deque
 import heapq
 
@@ -8,7 +8,7 @@ from .agent_tools import (
 from ..req_5.gui_model import DIRECTIONS
 
 cache = {}
-NAME = "BFS"
+NAME = "BFS-Greedy"
 MAX_WALK = INF
 
 
