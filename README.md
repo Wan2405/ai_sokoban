@@ -1,5 +1,5 @@
 # AI Midterm — Sokoban, chia theo từng Req
-<img width="2488" height="3312" alt="image" src="https://github.com/user-attachments/assets/79f38e1d-830a-4840-8204-b9a7e30a853b" />
+<img width="2488" height="3312" alt="image" src="https://github.com/user-attachments/assets/10204d5f-8f93-4ce5-a328-e9eb4cbfab0b" />
 
 
 Bản này ghép core UCS/A* với giao diện Pygame và giữ luật hai tác nhân của GUI.
