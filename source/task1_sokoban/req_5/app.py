@@ -4,6 +4,7 @@ import argparse
 import os
 from pathlib import Path
 import sys
+import threading
 
 os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 # Prevent Windows display scaling from blurring the finished pixel canvas.
@@ -40,6 +41,7 @@ class SokobanApp:
         pg.font.init()
         self.screen = pg.display.set_mode(size, pg.RESIZABLE)
         pg.display.set_caption("Sokoban · Kho gạch nhỏ")
+        self.background_solver = pg.display.get_driver() != "dummy"
         self.canvas = pg.Surface(size)
         self.clock = pg.time.Clock()
         self.fonts: dict[tuple[int, bool], pg.font.Font] = {}
@@ -79,6 +81,12 @@ class SokobanApp:
         self.pressed_until = 0
         self.running = True
         self.show_help = False
+        self.solving = False
+        self.solve_thread = None
+        self.solve_token = 0
+        self.solve_result = None
+        self.solve_error = None
+        self.solve_algorithm = self.algorithm
         self.previous = None
         self.animation_start = -1000
         self.toast = ""
@@ -196,6 +204,7 @@ class SokobanApp:
         self.buttons[key] = (hit, enabled)
 
     def _load_level(self, index):
+        self._cancel_solver()
         self._stop_agents()
         self.page = "game"
         self.competition = None
@@ -208,6 +217,67 @@ class SokobanApp:
         self.scene_cache = None
         self.toast = ""
         self.replay = None
+
+    def _cancel_solver(self):
+        self.solve_token += 1
+        self.solving = False
+        self.solve_thread = None
+        self.solve_result = None
+        self.solve_error = None
+
+    def _start_solver(self):
+        if self.solver is None:
+            self._message("Chưa có thuật toán được nối vào")
+            return
+        if self.solving:
+            return
+
+        candidate = Board(self.board.level)
+        candidate.initial = self.board.state
+        candidate.history = [self.board.state]
+        algorithm = self.algorithm
+        solver = self.solver
+        self._cancel_solver()
+        token = self.solve_token
+        self.solve_algorithm = algorithm
+        if not self.background_solver:
+            try:
+                actions, cost = solver(candidate, algorithm)
+                self.load_solution(actions, cost, algorithm)
+            except Exception as exc:
+                self._message(f"Không thể tải lời giải: {str(exc)[:65]}")
+            return
+        self.solving = True
+
+        def solve_in_background():
+            try:
+                result = solver(candidate, algorithm)
+            except Exception as exc:
+                if token == self.solve_token:
+                    self.solve_error = exc
+            else:
+                if token == self.solve_token:
+                    self.solve_result = result
+
+        self.solve_thread = threading.Thread(target=solve_in_background, daemon=True)
+        self.solve_thread.start()
+
+    def _poll_solver(self):
+        if not self.solving or not self.solve_thread or self.solve_thread.is_alive():
+            return
+        self.solving = False
+        self.solve_thread = None
+        result, error = self.solve_result, self.solve_error
+        self.solve_result = None
+        self.solve_error = None
+        if error is not None:
+            self._message(f"Không thể tải lời giải: {str(error)[:65]}")
+            return
+        try:
+            actions, cost = result
+            self.load_solution(actions, cost, self.solve_algorithm)
+        except Exception as exc:
+            self._message(f"Không thể tải lời giải: {str(exc)[:65]}")
 
     def _stop_agents(self):
         for runner in self.runners:
@@ -224,6 +294,7 @@ class SokobanApp:
         return "AI " + self.agent_names[spec]
 
     def open_menu(self):
+        self._cancel_solver()
         self._stop_agents()
         if self.replay:
             self.replay.paused = True
@@ -232,6 +303,7 @@ class SokobanApp:
         pg.key.stop_text_input()
 
     def _start_competition(self):
+        self._cancel_solver()
         try:
             n = int(self.round_input)
             game = CompetitiveBoard(COMPETITION_LEVEL, (8, 5), n)
@@ -320,6 +392,7 @@ class SokobanApp:
 
     def load_solution(self, actions, total_cost, algorithm=None):
         """Install a complete external solution, paused at its starting state."""
+        self._cancel_solver()
         if algorithm is not None and algorithm not in ("UCS", "A*"):
             raise ValueError("Thuật toán phải là UCS hoặc A*.")
         replay = Replay(self.board, actions, total_cost)
@@ -346,6 +419,8 @@ class SokobanApp:
 
     def act(self, action):
         if action == "help":
+            if self.solving:
+                return
             if self.replay:
                 self.replay.paused = True
             if self.competition:
@@ -354,11 +429,15 @@ class SokobanApp:
             return
         if self.show_help:
             return
-        self.pressed_action = action
-        self.pressed_until = pg.time.get_ticks()+125
         if action == "menu":
+            self.pressed_action = action
+            self.pressed_until = pg.time.get_ticks()+125
             self.open_menu()
             return
+        if self.solving:
+            return
+        self.pressed_action = action
+        self.pressed_until = pg.time.get_ticks()+125
         if self.page == "menu":
             if action == "single":
                 self._load_level(self.level_index)
@@ -381,24 +460,14 @@ class SokobanApp:
             self._competition_action(action)
             return
         if action in ("UCS", "A*"):
-            if action != self.algorithm:
-                self.algorithm = action
-                self.replay = None
-                # A planned future must not remain as manual redo history.
-                self.board.history = self.board.history[:self.board.cursor+1]
+            self.algorithm = action
+            self.replay = None
+            # A planned future must not remain as manual redo history.
+            self.board.history = self.board.history[:self.board.cursor+1]
+            self._start_solver()
             return
         if action == "solve":
-            if self.solver is None:
-                self._message("Chưa có thuật toán được nối vào")
-                return
-            candidate = Board(self.board.level)
-            candidate.initial = self.board.state
-            candidate.history = [self.board.state]
-            try:
-                actions, cost = self.solver(candidate, self.algorithm)
-                self.load_solution(actions, cost, self.algorithm)
-            except Exception as exc:
-                self._message(f"Không thể tải lời giải: {str(exc)[:65]}")
+            self._start_solver()
             return
         if action == "play":
             if self.replay and not self.replay.finished:
@@ -646,13 +715,13 @@ class SokobanApp:
             undo = self.competition_cursor > 0
             redo = self.competition_cursor < len(self.competition_history)-1
         else:
-            x = (w-560)//2
-            self.button("UCS", (x, y, 56, 44), "UCS", primary=self.algorithm == "UCS")
-            self.button("A*", (x+64, y, 56, 44), "A*", primary=self.algorithm == "A*")
-            self.button("solve", (x+128, y, 44, 44), enabled=self.solver is not None, icon="search")
-            self._playback_controls(x+192, y)
-            x += 360
-            undo, redo = self.board.can_undo, self.board.can_redo
+            x = (w-276)//2
+            self.button("UCS", (x, y, 56, 44), "UCS",
+                        enabled=not self.solving, primary=self.algorithm == "UCS")
+            self.button("A*", (x+64, y, 56, 44), "A*",
+                        enabled=not self.solving, primary=self.algorithm == "A*")
+            self._playback_controls(x+128, y)
+            return
         for key, enabled in (("undo", undo), ("redo", redo), ("reset", True), ("help", True)):
             self.button(key, (x, y, 44, 44), enabled=enabled, icon=key)
             x += 52
@@ -685,8 +754,25 @@ class SokobanApp:
             self.text(keys, x+228, row_y, 15, "#855321", True)
         self.text("Esc hoặc bấm chuột để đóng", rect.centerx, rect.bottom-46, 14, MUTED, center=True)
 
+    def _solver_overlay(self):
+        w, h = self.canvas.get_size()
+        overlay = pg.Surface((w, h), pg.SRCALPHA)
+        overlay.fill((60, 43, 30, 92))
+        self.canvas.blit(overlay, (0, 0))
+        rect = pg.Rect(0, 0, min(430, w-48), 148)
+        rect.center = (w//2, h//2)
+        self.card(rect, "#fff2d8", border="#846345")
+        self._icon("search", (rect.x+48, rect.centery-18), "#855321", scale=1.5)
+        self.text(f"{self.solve_algorithm} đang tìm đường", rect.x+86, rect.y+28, 21, "#855321", True)
+        self.text("Đang tính toán, vui lòng chờ", rect.x+86, rect.y+62, 14, MUTED)
+        phase = (pg.time.get_ticks()//180) % 4
+        for index in range(3):
+            color = GREEN if index < phase else "#b69a75"
+            pg.draw.rect(self.canvas, color, (rect.x+86+index*18, rect.y+97, 10, 10))
+
     def draw(self):
         if self.page == "game":
+            self._poll_solver()
             self._advance_replay()
             self._drive_agents()
             self._advance_competition()
@@ -700,7 +786,9 @@ class SokobanApp:
         self._header()
         self._board_view()
         self._controls_panel()
-        if self.show_help:
+        if self.solving:
+            self._solver_overlay()
+        elif self.show_help:
             self._help_overlay()
         else:
             self._button_hint()
